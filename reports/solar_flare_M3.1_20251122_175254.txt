@@ -1,0 +1,54 @@
+
+======================================================================
+🟠 SOLAR FLARE ALERT - MODERATE 🟠
+======================================================================
+
+FLARE CLASSIFICATION: M3.1
+EVENT ID: 2025-11-16T07:49:00-FLR-001
+SEVERITY: MODERATE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TIMING INFORMATION:
+  • Begin Time:  2025-11-16 07:49 UTC
+  • Peak Time:   2025-11-16 08:17 UTC
+  • End Time:    2025-11-16 08:32 UTC
+
+SOURCE INFORMATION:
+  • Location: N24W93
+  • Active Region: 14274
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ANALYSIS:
+A M3.1 class solar flare represents moderate space weather activity with potential impacts on radio communications and satellite operations.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+POTENTIAL IMPACTS:
+  • Moderate radio interference on sunlit side
+  • Minor satellite operation disruptions
+  • Limited impact on high-frequency communications
+  • Possible auroral activity at high latitudes
+
+AFFECTED REGIONS:
+  • Sunlit hemisphere at time of peak
+  • High-frequency radio users
+  • Satellite operators
+
+LINKED EVENTS: 1 associated space weather event(s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RECOMMENDATIONS:
+  • Monitor space weather updates from NOAA SWPC
+  • Review communication backup procedures if in affected regions
+  • Satellite operators should verify system status
+  • Aircraft on polar routes should stay informed
+
+REPORT METADATA:
+  • Generated: 2025-11-22 17:52:54 UTC
+  • Source: NASA DONKI API
+  • Event ID: 2025-11-16T07:49:00-FLR-001
+
+======================================================================

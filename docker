@@ -1,0 +1,262 @@
+# ============================================================================
+# Dockerfile for Google Cloud Run Deployment
+# ============================================================================
+
+# File: Dockerfile
+# ---
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY solar_flare_monitor.py .
+
+# Create reports directory
+RUN mkdir -p /app/reports
+
+# Set environment variables (will be overridden by Cloud Run)
+ENV NASA_API_KEY="DEMO_KEY"
+ENV PORT=8080
+
+# Run the application
+CMD exec python solar_flare_monitor.py
+
+# ============================================================================
+# Cloud Build Configuration
+# ============================================================================
+
+# File: cloudbuild.yaml
+# ---
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/solar-flare-monitor', '.']
+  
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/solar-flare-monitor']
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'solar-flare-monitor'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/solar-flare-monitor'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/solar-flare-monitor'
+
+# ============================================================================
+# Cloud Scheduler Configuration (cron job for automated checks)
+# ============================================================================
+
+# File: scheduler-config.yaml
+# ---
+name: solar-flare-check-every-30min
+schedule: "*/30 * * * *"  # Every 30 minutes
+timeZone: "UTC"
+httpTarget:
+  uri: "https://solar-flare-monitor-[PROJECT_ID].run.app"
+  httpMethod: POST
+  headers:
+    Content-Type: "application/json"
+
+# ============================================================================
+# Environment Variables Configuration
+# ============================================================================
+
+# File: .env.example
+# Copy to .env and fill in your values
+# ---
+NASA_API_KEY=your_nasa_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+SERPER_API_KEY=your_serper_api_key_here
+
+# Email configuration (optional)
+EMAIL_SENDER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+EMAIL_RECIPIENT=alerts@yourcompany.com
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+
+# ============================================================================
+# Deployment Commands Reference
+# ============================================================================
+
+# File: DEPLOYMENT.md
+# ---
+
+# Prerequisites:
+# 1. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+# 2. Login: gcloud auth login
+# 3. Set project: gcloud config set project YOUR_PROJECT_ID
+
+# -------- Option 1: Deploy with Cloud Build --------
+
+gcloud builds submit --config cloudbuild.yaml
+
+# -------- Option 2: Deploy directly with gcloud --------
+
+# Build and deploy in one command
+gcloud run deploy solar-flare-monitor \
+    --source . \
+    --platform managed \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --set-env-vars NASA_API_KEY=YOUR_KEY,GEMINI_API_KEY=YOUR_KEY
+
+# -------- Option 3: Deploy with Docker locally then push --------
+
+# Build locally
+docker build -t solar-flare-monitor .
+
+# Test locally
+docker run -p 8080:8080 \
+    -e NASA_API_KEY=YOUR_KEY \
+    -e GEMINI_API_KEY=YOUR_KEY \
+    solar-flare-monitor
+
+# Tag for Google Container Registry
+docker tag solar-flare-monitor gcr.io/YOUR_PROJECT_ID/solar-flare-monitor
+
+# Push to GCR
+docker push gcr.io/YOUR_PROJECT_ID/solar-flare-monitor
+
+# Deploy to Cloud Run
+gcloud run deploy solar-flare-monitor \
+    --image gcr.io/YOUR_PROJECT_ID/solar-flare-monitor \
+    --platform managed \
+    --region us-central1
+
+# -------- Setup Cloud Scheduler (Automated Checks) --------
+
+# Create scheduler job (runs every 30 minutes)
+gcloud scheduler jobs create http solar-flare-check \
+    --schedule="*/30 * * * *" \
+    --uri="https://solar-flare-monitor-xxxxx.run.app" \
+    --http-method=POST \
+    --location=us-central1
+
+# -------- Manage Secrets (Secure API Keys) --------
+
+# Create secrets in Secret Manager
+echo -n "YOUR_NASA_KEY" | gcloud secrets create nasa-api-key --data-file=-
+echo -n "YOUR_GEMINI_KEY" | gcloud secrets create gemini-api-key --data-file=-
+
+# Deploy with secrets
+gcloud run deploy solar-flare-monitor \
+    --source . \
+    --set-secrets=NASA_API_KEY=nasa-api-key:latest,GEMINI_API_KEY=gemini-api-key:latest
+
+# -------- Monitoring & Logs --------
+
+# View logs
+gcloud run services logs read solar-flare-monitor --limit=50
+
+# Stream logs in real-time
+gcloud run services logs tail solar-flare-monitor
+
+# View service details
+gcloud run services describe solar-flare-monitor
+
+# -------- Scaling Configuration --------
+
+# Configure autoscaling
+gcloud run services update solar-flare-monitor \
+    --min-instances=0 \
+    --max-instances=10 \
+    --concurrency=80
+
+# -------- Cost Management --------
+
+# Cloud Run costs are minimal:
+# - $0.00 for the first 2M requests/month
+# - $0.40 per million requests after that
+# - CPU/memory charged only during execution
+# - Typical cost: < $5/month for 30-min checks
+
+# ============================================================================
+# Agent Engine Deployment (Alternative)
+# ============================================================================
+
+# If using Google Agent Engine instead of Cloud Run:
+
+# 1. Package your agent
+agent_config.yaml:
+  name: solar-flare-monitor
+  runtime: python39
+  entry_point: solar_flare_monitor:cloud_run_handler
+  environment:
+    NASA_API_KEY: ${NASA_API_KEY}
+    GEMINI_API_KEY: ${GEMINI_API_KEY}
+
+# 2. Deploy to Agent Engine
+# Follow Agent Engine documentation for your specific setup
+
+# ============================================================================
+# Testing the Deployment
+# ============================================================================
+
+# Test the deployed service
+curl -X POST https://your-service-url.run.app \
+    -H "Content-Type: application/json" \
+    -d '{}'
+
+# Expected response:
+{
+  "status": "success",
+  "flares_processed": 0,
+  "timestamp": "2024-01-15T12:00:00"
+}
+
+# ============================================================================
+# Troubleshooting
+# ============================================================================
+
+# Issue: "Permission denied" errors
+# Solution: Grant Cloud Run Admin role
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member=serviceAccount:YOUR_SERVICE_ACCOUNT \
+    --role=roles/run.admin
+
+# Issue: Container fails to start
+# Solution: Check logs and ensure all dependencies in requirements.txt
+gcloud run services logs read solar-flare-monitor --limit=100
+
+# Issue: API rate limits exceeded
+# Solution: Get dedicated API keys (not DEMO_KEY) and implement rate limiting
+
+# Issue: Out of memory
+# Solution: Increase memory allocation
+gcloud run services update solar-flare-monitor \
+    --memory=512Mi
+
+# ============================================================================
+# Production Checklist
+# ============================================================================
+
+- [ ] Obtained dedicated API keys (not DEMO keys)
+- [ ] Configured secrets in Secret Manager
+- [ ] Set up Cloud Scheduler for automated checks
+- [ ] Configured email notifications
+- [ ] Set up monitoring and alerting
+- [ ] Tested deployment with real API calls
+- [ ] Documented service URL and configuration
+- [ ] Set up backup/recovery procedures
+- [ ] Configured appropriate scaling limits
+- [ ] Reviewed and optimized costs
