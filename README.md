@@ -1,3 +1,4 @@
+#ARKA
 # 🌞 Solar Flare Multi-Agent Monitoring System
 
 **Competition Track**: AI Agents with Gemini  
