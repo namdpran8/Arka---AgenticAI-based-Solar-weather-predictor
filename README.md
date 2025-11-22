@@ -2,7 +2,7 @@
 
 **Competition Track**: AI Agents with Gemini  
 **Project Type**: Autonomous Multi-Agent System  
-**Author**: [Your Name]  
+**Author**: Pranshu Namdeo  
 **Kaggle Competition Submission**
 
 ---
