@@ -1,5 +1,5 @@
-#ARKA
-# 🌞 Solar Flare Multi-Agent Monitoring System
+# ARKA
+**🌞 Solar Flare Multi-Agent Monitoring System**
 
 **Competition Track**: AI Agents with Gemini  
 **Project Type**: Autonomous Multi-Agent System  
