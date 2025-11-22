@@ -362,6 +362,42 @@ solar-flare-monitoring/
 
 ---
 
+## 🎨 Web Dashboard (NEW!)
+
+### Interactive User Interface
+
+The system now includes a **beautiful, real-time web dashboard** for monitoring and controlling the multi-agent system:
+
+**Features:**
+- 📊 Real-time agent status monitoring with live metrics
+- 🎮 Interactive control panel (run cycles, refresh data)
+- 🚨 Live alerts feed with severity indicators
+- 📜 Color-coded system logs (INFO, SUCCESS, WARNING, ERROR)
+- 📈 Performance statistics and uptime tracking
+- 📄 Report viewing and download functionality
+
+**Quick Start:**
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Set API keys
+export NASA_API_KEY="your_key"
+export GEMINI_API_KEY="your_key"
+
+# Start dashboard server
+python app.py
+
+# Open browser to http://localhost:5000
+```
+
+**Screenshots:**
+![Dashboard Overview](https://via.placeholder.com/800x400?text=Solar+Flare+Dashboard)
+
+See `DASHBOARD.md` for complete setup guide and customization options.
+
+---
+
 ## 🚀 Usage Examples
 
 ### Example 1: Basic Single Cycle
